@@ -5,9 +5,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -72,6 +74,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         hideSystemUi()
+        registerBackHandler()
         registerConfirmReceiver()
 
         setContent {
@@ -101,9 +104,32 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (
+            event.action == KeyEvent.ACTION_UP &&
+            event.repeatCount == 0 &&
+            event.keyCode in CONFIRM_KEY_CODES
+        ) {
+            confirmEvents.trySend(Unit)
+            return true
+        }
+        return super.dispatchKeyEvent(event)
+    }
+
     override fun onDestroy() {
         unregisterReceiver(confirmReceiver)
         super.onDestroy()
+    }
+
+    private fun registerBackHandler() {
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    goBack()
+                }
+            },
+        )
     }
 
     private fun registerConfirmReceiver() {
@@ -155,6 +181,15 @@ class MainActivity : ComponentActivity() {
         val index: Int,
         val isComplete: Boolean,
     )
+
+    companion object {
+        private val CONFIRM_KEY_CODES = setOf(
+            KeyEvent.KEYCODE_ENTER,
+            KeyEvent.KEYCODE_DPAD_CENTER,
+            KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE,
+            KeyEvent.KEYCODE_HEADSETHOOK,
+        )
+    }
 }
 
 @Composable
