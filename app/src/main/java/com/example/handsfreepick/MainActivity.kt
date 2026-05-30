@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
@@ -42,6 +41,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -108,12 +108,12 @@ class MainActivity : ComponentActivity() {
 
     private fun registerConfirmReceiver() {
         val filter = IntentFilter(KeyReceiver.ACTION_CONFIRM)
-        if (Build.VERSION.SDK_INT >= 33) {
-            registerReceiver(confirmReceiver, filter, RECEIVER_NOT_EXPORTED)
-        } else {
-            @Suppress("DEPRECATION")
-            registerReceiver(confirmReceiver, filter)
-        }
+        ContextCompat.registerReceiver(
+            this,
+            confirmReceiver,
+            filter,
+            ContextCompat.RECEIVER_EXPORTED,
+        )
     }
 
     private fun advance() {
