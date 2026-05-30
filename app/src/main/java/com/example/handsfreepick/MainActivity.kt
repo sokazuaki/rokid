@@ -222,7 +222,7 @@ private fun PickHud(
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 HudText(
-                    text = "PICK",
+                    text = "PICK ver2",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                 )
